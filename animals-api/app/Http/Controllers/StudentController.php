@@ -19,13 +19,13 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        $input = [
-            'nama' => $request->nama,
-            'nim' => $request->nim,
-            'email' => $request->email,
-            'jurusan' => $request->jurusan
-        ];
-        $student = Student::create($input);
+        $validateData = $request->validate([
+            'nama' => 'required',
+            'nim' => 'numeric|required|unique:students',
+            'email' => 'email|required|unique:students',
+            'jurusan' => 'required'
+        ]);
+        $student = Student::create($validateData);
         $data = [
             'message' => 'Student is created succesfully',
             'data' => $student,
@@ -37,14 +37,15 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         $student = Student::find($id);
+
         if ($student) {
-            $input = [
-                'nama' => $request->nama ?? $student->nama,
-                'nim' => $request->nim ?? $student->nim,
-                'email' => $request->email ?? $student->email,
-                'jurusan' => $request->jurusan ?? $student->jurusan
-            ];
-            $student->update($input);
+            $validateData = $request->validate([
+                'nama' => 'required',
+                'nim' => 'numeric|required|unique:students,nim,' . $id,
+                'email' => 'email|required|unique:students,email,' . $id,
+                'jurusan' => 'required'
+            ]);
+            $student->update($validateData);
             $data = [
                 'message' => 'Student is updated',
                 'data' => $student
